@@ -1,0 +1,37 @@
+{
+    "name": "pander/dataloader-support",
+    "description": "Utility belt for usage with overblog/dataloader",
+    "type": "library",
+    "require": {
+        "doctrine/orm": "^2.0 || ^3.0",
+        "webonyx/graphql-php": "*"
+    },
+    "license": "MIT",
+    "scripts": {
+        "test": "phpunit --display-deprecations --display-phpunit-deprecations"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pander\\DataLoaderSupport\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Pander\\DataLoaderSupport\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Remco Pander",
+            "email": "rpander93@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.1",
+        "symfony/cache": "^7.2",
+        "webonyx/graphql-php": "^15.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
