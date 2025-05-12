@@ -17,7 +17,7 @@ class PostgreSqlLoaderTest extends TestCase {
 
   public static function setUpBeforeClass(): void {
     parent::setUpBeforeClass();
-    $entityManagerFactory = require __DIR__.'/createConfiguredDatabase.php';
+    $entityManagerFactory = require_once __DIR__.'/createConfiguredDatabase.php';
     static::$entityManager = $entityManagerFactory();
   }
 
