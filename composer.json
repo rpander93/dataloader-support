@@ -8,7 +8,16 @@
     },
     "license": "MIT",
     "scripts": {
-        "test": "phpunit --display-deprecations --display-phpunit-deprecations"
+        "test": "phpunit --display-deprecations --display-phpunit-deprecations",
+        "install-cs": "test -f php-cs-fixer.phar || wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.23.0/php-cs-fixer.phar -O php-cs-fixer.phar",
+        "fix-cs": [
+            "@install-cs",
+            "@php php-cs-fixer.phar fix --diff -v --allow-risky=yes --ansi"
+        ],
+        "check-cs": [
+            "@install-cs",
+            "@php php-cs-fixer.phar fix --dry-run --diff -v --allow-risky=yes --ansi"
+        ]
     },
     "autoload": {
         "psr-4": {
