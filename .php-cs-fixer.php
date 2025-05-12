@@ -18,7 +18,6 @@ return (new PhpCsFixer\Config())
       'syntax' => 'short',
     ],
     'is_null' => true,
-    'braces' => false,
     'combine_consecutive_issets' => true,
     'combine_consecutive_unsets' => true,
     'control_structure_braces' => false,
