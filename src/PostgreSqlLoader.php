@@ -110,12 +110,13 @@ class PostgreSqlLoader implements LoaderInterface {
 
       foreach ($results as $result) {
         $referencedColumnValue = $result[$targetReferencedColumnName];
-        $include = array_any(array: $targetSourceMapping, callback: function ($value) use ($objectId, $referencedColumnValue) {
-          return $objectId === $value['source_column'] && $referencedColumnValue === $value['target_column'];
-        });
 
-        if ($include) {
-          $matches[] = $result;
+        foreach ($targetSourceMapping as $mapping) {
+          if ($objectId === $mapping['source_column'] && $referencedColumnValue === $mapping['target_column']) {
+            $matches[] = $result;
+
+            break;
+          }
         }
       }
 

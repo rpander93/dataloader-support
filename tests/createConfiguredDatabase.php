@@ -46,7 +46,7 @@ function array_random_values(array $input, int $count): array {
 return function () {
   $connectionParams = (new DsnParser())->parse(getenv('DATABASE_URL'));
   $connection = DriverManager::getConnection($connectionParams);
-  $configuration = ORMSetup::createAttributeMetadataConfiguration([__DIR__], isDevMode:true);
+  $configuration = ORMSetup::createAttributeMetadataConfiguration([__DIR__], isDevMode: true);
   $configuration->setCustomStringFunctions(['IDX' => IdxFunction::class]);
   $entityManager = new EntityManager($connection, $configuration);
   addFixturesInDatabase($entityManager);
