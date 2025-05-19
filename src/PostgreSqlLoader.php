@@ -14,8 +14,17 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 
 class PostgreSqlLoader implements LoaderInterface {
-  public function __construct(private EntityManagerInterface $entityManager, private PromiseAdapter $promiseAdapter) {
+  public function __construct(
+    private EntityManagerInterface $entityManager,
+    private PromiseAdapter $promiseAdapter,
+    /** @param "object"|"array" */
+    private string $hydrationMode = 'object',
+  ) {
     // ..
+  }
+
+  public function setHydrationMode(string $mode): void {
+    $this->hydrationMode = $mode;
   }
 
   public function load(string $entityClass, array $keys, string $keyField = 'id'): Promise {
@@ -100,9 +109,9 @@ class PostgreSqlLoader implements LoaderInterface {
       ->from($targetEntity, 'x')
       ->where($builder->expr()->in(\sprintf('x.%s', $targetReferencedColumnName), ':targetIds'))
       ->setParameter('targetIds', $targetSelection, ArrayParameterType::INTEGER);
-    $results = $builder
-      ->getQuery()
-      ->getArrayResult();
+
+    $query = $builder->getQuery();
+    $results = $this->runQuery($query);
 
     $retVal = [];
     foreach ($objectIds as $objectId) {
@@ -133,6 +142,10 @@ class PostgreSqlLoader implements LoaderInterface {
     if (class_exists(TranslationWalker::class, false)) {
       $query->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, TranslationWalker::class);
       $query->setHint(\Gedmo\Translatable\TranslatableListener::HINT_FALLBACK, 1);
+    }
+
+    if ('object' === $this->hydrationMode) {
+      return $query->getResult();
     }
 
     return $query->getArrayResult();
