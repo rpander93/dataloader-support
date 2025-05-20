@@ -41,7 +41,7 @@ class PostgreSqlLoader implements LoaderInterface {
     $elements = $this->runQuery($query);
     $retVal = \count($elements) === \count($keys) ? $elements : $this->zipMissingValues($keys, $elements, $keyField);
 
-    return $this->promiseAdapter->createFulfilled($retVal);
+    return $this->promiseAdapter->all($retVal);
   }
 
   public function loadByParent(string $entityClass, string $parentField, array $parentKeys): Promise {
@@ -75,7 +75,7 @@ class PostgreSqlLoader implements LoaderInterface {
       $retVal[] = $matches;
     }
 
-    return $this->promiseAdapter->createFulfilled($retVal);
+    return $this->promiseAdapter->all($retVal);
   }
 
   public function loadByJoinTable(string $owningClass, string $field, array $objectIds): Promise {
@@ -112,13 +112,14 @@ class PostgreSqlLoader implements LoaderInterface {
 
     $query = $builder->getQuery();
     $results = $this->runQuery($query);
-
+    $propertyAccessor = $this->createPropertyAccessor($targetEntity, $targetReferencedColumnName);
+    
     $retVal = [];
     foreach ($objectIds as $objectId) {
       $matches = [];
 
       foreach ($results as $result) {
-        $referencedColumnValue = $result[$targetReferencedColumnName];
+        $referencedColumnValue = $propertyAccessor($result, $targetReferencedColumnName);
 
         foreach ($targetSourceMapping as $mapping) {
           if ($objectId === $mapping['source_column'] && $referencedColumnValue === $mapping['target_column']) {
@@ -132,10 +133,30 @@ class PostgreSqlLoader implements LoaderInterface {
       $retVal[] = $matches;
     }
 
-    return $this->promiseAdapter->createFulfilled($retVal);
+    return $this->promiseAdapter->all($retVal);
   }
 
-  protected function runQuery(Query $query): array {
+  // Creates a property accessor that uses `getX()` or `x()` method to access on objects
+  // or directly access the property on arrays
+  private function createPropertyAccessor(string $owningClass, string $property): \Closure {
+    if ($this->hydrationMode === 'array') {
+      return function (array $result) use ($property) {
+        return $result[$property];
+      };
+    }
+
+    if (method_exists($owningClass, 'get' . \ucfirst($property))) {
+      return function ($result) use ($property) {
+        return $result->{'get' . \ucfirst($property)}();
+      };
+    }
+
+    return function ($result) use ($property) {
+      return $result->{$property}();
+    };
+  }
+
+  private function runQuery(Query $query): array {
     $query->setHint(Query::HINT_INCLUDE_META_COLUMNS, true);
 
     // Enable translations if extension is available
@@ -151,7 +172,7 @@ class PostgreSqlLoader implements LoaderInterface {
     return $query->getArrayResult();
   }
 
-  protected function zipMissingValues(array $objectIds, array $results, string $field): array {
+  private function zipMissingValues(array $objectIds, array $results, string $field): array {
     $retVal = [];
 
     $resultsCount = \count($results);

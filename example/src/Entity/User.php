@@ -31,8 +31,9 @@ class User {
   #[GQL\Field(name: 'isActive', type: 'Boolean!')]
   private bool $isActive = true;
 
-  #[ORM\ManyToMany(targetEntity: UserGroup::class, mappedBy: 'members')]
-  #[GQL\Field(name: 'groups', type: '[UserGroup!]!', resolve: "service('user_user_groups_loader').load(value.id)")]
+  #[ORM\ManyToMany(targetEntity: UserGroup::class)]
+  #[ORM\JoinTable(name: 'user_group_members')]
+  #[GQL\Field(name: 'groups', type: '[UserGroup!]!', resolve: "service('user_user_groups_loader').load(value.getId())")]
   private Collection $groups;
 
   public function __construct(string $name, string $email, bool $isActive = true) {

@@ -29,7 +29,7 @@ class UserGroup {
 
   #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'groups')]
   #[ORM\JoinTable(name: 'user_group_members')]
-  #[GQL\Field(name: 'members', type: '[User!]!', resolve: "service('user_group_users_loader').load(value.id)")]
+  #[GQL\Field(name: 'members', type: '[User!]!', resolve: "service('user_group_users_loader').load(value.getId())")]
   private Collection $members;
 
   public function __construct(string $name, ?string $description = null) {

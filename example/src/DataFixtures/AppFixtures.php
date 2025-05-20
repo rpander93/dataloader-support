@@ -26,8 +26,9 @@ class AppFixtures extends Fixture {
 
     foreach ($groups as $group) {
       $manager->persist($group);
-      $manager->flush();
     }
+
+    $manager->flush();
 
     return $groups;
   }
@@ -55,5 +56,7 @@ class AppFixtures extends Fixture {
 
       $manager->persist($user);
     }
+
+    $manager->flush();
   }
 }

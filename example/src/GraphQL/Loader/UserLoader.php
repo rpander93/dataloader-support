@@ -21,6 +21,6 @@ class UserLoader {
 
   // Loads a list of `User` entities per group ID.
   public function loadByGroup(array $userGroupIds): Promise {
-    return $this->loader->loadByJoinTable(UserGroup::class, 'users', $userGroupIds);
+    return $this->loader->loadByJoinTable(UserGroup::class, 'members', $userGroupIds);
   }
 }

@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Tests\App;
 
 use App\Entity\User;
+use App\Kernel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GraphQLTest extends WebTestCase {
+  public static function getKernelClass(): string {
+    return Kernel::class;
+  }
+
   public function testQueriesUsers(): void {
     $queryString = <<<'GRAPHQL'
       query {
@@ -27,26 +32,30 @@ class GraphQLTest extends WebTestCase {
           groups {
             id
             name
+            members {
+              id
+              name
+            }
           }
         }
       }
       GRAPHQL;
 
     $client = $this->createClient();
-    $response = $client->request('POST', '/graphql', [
+    $client->request('POST', '/graphql/', [
       'query' => $queryString,
     ]);
 
     static::assertResponseIsSuccessful();
-    static::assertJson($response);
-
-    $content = json_decode($response->getContents(), associative: true);
+    $content = $client->getResponse()->getContent();
+    static::assertJson($content);
+    $content = json_decode($content, true);
     static::assertArrayNotHasKey('errors', $content);
 
     $data = $content['data'];
     static::assertArrayHasKey('users', $data);
     static::assertArrayHasKey('user', $data);
-    static::assertSame(1, $data['user']['id']);
+    static::assertSame(1, (int) $data['user']['id']);
 
     /** @var EntityManagerInterface */
     $entityManager = static::getContainer()->get(EntityManagerInterface::class);
