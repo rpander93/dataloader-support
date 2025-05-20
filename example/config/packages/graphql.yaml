@@ -1,0 +1,31 @@
+overblog_graphql:
+    definitions:
+        schema:
+            query: RootQuery
+        mappings:
+            types:
+                - type: attribute
+                  dir: "%kernel.project_dir%/src/GraphQL"
+                  suffix: ~
+                - type: attribute
+                  dir: "%kernel.project_dir%/src/Entity"
+                  suffix: ~
+    services:
+        promise_adapter: webonyx_graphql.sync_promise_adapter
+
+overblog_dataloader:
+    defaults:
+        promise_adapter: "overblog_dataloader.webonyx_graphql_sync_promise_adapter"
+    loaders:
+        user_loader:
+            batch_load_fn: '@App\GraphQL\Loader\UserLoader:load'
+            alias: user_loader
+        user_group_loader:
+            batch_load_fn: '@App\GraphQL\Loader\UserGroupLoader:load'
+            alias: user_group_loader
+        user_user_groups_loader:
+            batch_load_fn: '@App\GraphQL\Loader\UserGroupLoader:loadByUser'
+            alias: user_user_groups_loader
+        user_group_users_loader:
+            batch_load_fn: '@App\GraphQL\Loader\UserLoader:loadByGroup'
+            alias: user_group_users_loader
