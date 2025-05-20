@@ -57,6 +57,8 @@ jobs:
         run: composer test
 
       - name: "Run example"
+        env:
+          DATABASE_URL: "pdo-pgsql://user:password@localhost:5432/database?serverVersion=17.5.1"
         run: |
           cd example; composer install; composer test
 

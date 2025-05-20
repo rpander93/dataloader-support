@@ -23,7 +23,7 @@ class PostgreSqlLoaderTest extends TestCase {
 
   public function setUp(): void {
     $this->promiseAdapter = new SyncPromiseAdapter();
-    $this->loader = new PostgreSqlLoader(static::$entityManager, $this->promiseAdapter);
+    $this->loader = new PostgreSqlLoader(static::$entityManager, $this->promiseAdapter, hydrationMode: 'array');
   }
 
   public function testLoadsEntitiesInRequestedOrder(): void {
