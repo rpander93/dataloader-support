@@ -130,7 +130,7 @@ class PostgreSqlLoader implements LoaderInterface {
     $query = $builder->getQuery();
     $results = $this->runQuery($query);
     $propertyAccessor = $this->createPropertyAccessor($targetEntity, $targetReferencedColumnName);
-    
+
     $retVal = [];
     foreach ($objectIds as $objectId) {
       $matches = [];
@@ -156,15 +156,15 @@ class PostgreSqlLoader implements LoaderInterface {
   // Creates a property accessor that uses `getX()` or `x()` method to access on objects
   // or directly access the property on arrays
   private function createPropertyAccessor(string $owningClass, string $property): \Closure {
-    if ($this->hydrationMode === 'array') {
+    if ('array' === $this->hydrationMode) {
       return function (array $result) use ($property) {
         return $result[$property];
       };
     }
 
-    if (method_exists($owningClass, 'get' . \ucfirst($property))) {
+    if (method_exists($owningClass, 'get'.ucfirst($property))) {
       return function ($result) use ($property) {
-        return $result->{'get' . \ucfirst($property)}();
+        return $result->{'get'.ucfirst($property)}();
       };
     }
 
