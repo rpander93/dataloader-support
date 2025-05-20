@@ -2,6 +2,10 @@
 
 This package complements github.com/overblog/dataloader-php (and github.com/overblog/dataloader-bundle) by making it straightforward to write data loaders - typically for use with a GraphQL api - that load entities via Doctrine ORM.
 
+## Example
+
+You can find an example GraphQL server implemented in `example/`
+
 ## The need
 
 As explained [here](https://github.com/overblog/dataloader-php?tab=readme-ov-file#batch-function), in overblog/dataloader-php, the resolver function `$batchLoadFn` is required to return elements in the same order as the `$keys` provided. Any values not found in the source must be substituded for (with `NULL`).
