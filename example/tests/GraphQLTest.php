@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App;
 
 use App\Entity\User;
+use App\Entity\UserGroup;
 use App\Kernel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -16,7 +17,7 @@ class GraphQLTest extends WebTestCase {
 
   public function testQueriesUsers(): void {
     $queryString = <<<'GRAPHQL'
-      query {
+      query ($userId: ID!) {
         users {
           id
           name
@@ -26,7 +27,7 @@ class GraphQLTest extends WebTestCase {
           }
         }
 
-        user(id: 1) {
+        user(id: $userId) {
           id
           name
           groups {
@@ -42,8 +43,22 @@ class GraphQLTest extends WebTestCase {
       GRAPHQL;
 
     $client = $this->createClient();
+
+    /** @var EntityManagerInterface */
+    $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+    /** @var User */
+    $user = $entityManager->createQueryBuilder()
+      ->select('u')
+      ->from(User::class, 'u')
+      ->setMaxResults(1)
+      ->getQuery()
+      ->getOneOrNullResult();
+
     $client->request('POST', '/graphql/', [
       'query' => $queryString,
+      'variables' => [
+        'userId' => $user->getId(),
+      ],
     ]);
 
     static::assertResponseIsSuccessful();
@@ -55,15 +70,18 @@ class GraphQLTest extends WebTestCase {
     $data = $content['data'];
     static::assertArrayHasKey('users', $data);
     static::assertArrayHasKey('user', $data);
-    static::assertSame(1, (int) $data['user']['id']);
-
-    /** @var EntityManagerInterface */
-    $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+    static::assertSame($user->getId(), (int) $data['user']['id']);
 
     foreach ($data['users'] as $user) {
       /** @var User */
       $entity = $entityManager->find(User::class, $user['id']);
       static::assertCount($entity->getGroups()->count(), $user['groups']);
+    }
+
+    foreach ($data['user']['groups'] as $group) {
+      /** @var UserGroup */
+      $entity = $entityManager->find(UserGroup::class, $group['id']);
+      static::assertCount($entity->getMembers()->count(), $group['members']);
     }
   }
 }

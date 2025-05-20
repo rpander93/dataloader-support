@@ -31,7 +31,7 @@ class User {
   #[GQL\Field(name: 'isActive', type: 'Boolean!')]
   private bool $isActive = true;
 
-  #[ORM\ManyToMany(targetEntity: UserGroup::class)]
+  #[ORM\ManyToMany(targetEntity: UserGroup::class, inversedBy: 'members')]
   #[ORM\JoinTable(name: 'user_group_members')]
   #[GQL\Field(name: 'groups', type: '[UserGroup!]!', resolve: "service('user_user_groups_loader').load(value.getId())")]
   private Collection $groups;

@@ -27,8 +27,7 @@ class UserGroup {
   #[GQL\Field(name: 'description', type: 'String')]
   private ?string $description = null;
 
-  #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'groups')]
-  #[ORM\JoinTable(name: 'user_group_members')]
+  #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'groups')]
   #[GQL\Field(name: 'members', type: '[User!]!', resolve: "service('user_group_users_loader').load(value.getId())")]
   private Collection $members;
 

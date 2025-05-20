@@ -6,6 +6,7 @@ namespace Pander\DataLoaderSupport;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ManyToManyInverseSideMapping;
 use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 use Doctrine\ORM\Mapping\ManyToOneAssociationMapping;
 use Doctrine\ORM\Query;
@@ -80,13 +81,29 @@ class PostgreSqlLoader implements LoaderInterface {
 
   public function loadByJoinTable(string $owningClass, string $field, array $objectIds): Promise {
     $metadata = $this->entityManager->getClassMetadata($owningClass);
-    /** @var ManyToManyOwningSideMapping $fieldMapping */
+    /** @var ManyToManyOwningSideMapping|ManyToManyInverseSideMapping $fieldMapping */
     $fieldMapping = $metadata->getAssociationMapping($field);
-    $joinTable = $fieldMapping->joinTable->name;
-    $sourceColumn = $fieldMapping->joinTable->joinColumns[0]->name;
-    $targetColumn = $fieldMapping->joinTable->inverseJoinColumns[0]->name;
-    $targetReferencedColumnName = $fieldMapping->joinTable->inverseJoinColumns[0]->referencedColumnName;
+
+    $joinTable = $fieldMapping instanceof ManyToManyOwningSideMapping
+      ? $fieldMapping->joinTable
+      : $this->entityManager
+        ->getClassMetadata($fieldMapping->targetEntity)
+        ->getAssociationMapping($fieldMapping->mappedBy)->joinTable;
+
+    $joinTableName = $joinTable->name;
     $targetEntity = $fieldMapping->targetEntity;
+
+    // Defaults for ManyToManyOwningSideMapping
+    $sourceColumn = $joinTable->joinColumns[0]->name;
+    $targetColumn = $joinTable->inverseJoinColumns[0]->name;
+    $targetReferencedColumnName = $joinTable->inverseJoinColumns[0]->referencedColumnName;
+
+    // Inverse defaults
+    if ($fieldMapping instanceof ManyToManyInverseSideMapping) {
+      $sourceColumn = $joinTable->inverseJoinColumns[0]->name;
+      $targetColumn = $joinTable->joinColumns[0]->name;
+      $targetReferencedColumnName = $joinTable->joinColumns[0]->referencedColumnName;
+    }
 
     // Fetch list of entities to retrieve
     $builder = $this->entityManager
@@ -94,7 +111,7 @@ class PostgreSqlLoader implements LoaderInterface {
       ->createQueryBuilder();
     $builder
       ->select(\sprintf('x.%s AS source_column', $sourceColumn), \sprintf('x.%s AS target_column', $targetColumn))
-      ->from($joinTable, 'x')
+      ->from($joinTableName, 'x')
       ->where($builder->expr()->in(\sprintf('x.%s', $sourceColumn), ':objectIds'))
       ->setParameter('objectIds', $objectIds, ArrayParameterType::INTEGER);
     /** @var array{ source_column: int; target_column: int; } */
