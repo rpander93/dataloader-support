@@ -1,4 +1,5 @@
 # Pander\DataLoaderSupport
+[![Latest Stable Version](http://poser.pugx.org/pander/dataloader-support/v)](https://packagist.org/packages/pander/dataloader-support)
 
 This package complements github.com/overblog/dataloader-php (and github.com/overblog/dataloader-bundle) by making it straightforward to write data loaders - typically for use with a GraphQL api - that load entities via Doctrine ORM.
 
