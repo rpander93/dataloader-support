@@ -12,7 +12,9 @@ interface LoaderInterface {
 
   public function load(string $entityClass, array $keys, string $keyField = 'id'): Promise;
 
-  public function loadByParent(string $entityClass, string $parentField, array $parentKeys): Promise;
+  /** @param $filters ?callable(\Doctrine\ORM\QueryBuilder): void */
+  public function loadByParent(string $entityClass, string $parentField, array $parentKeys, ?callable $filters = null): Promise;
 
-  public function loadByJoinTable(string $owningClass, string $field, array $keys): Promise;
+  /** @param $filters ?callable(\Doctrine\ORM\QueryBuilder): void */
+  public function loadByJoinTable(string $owningClass, string $field, array $keys, ?callable $filters = null): Promise;
 }

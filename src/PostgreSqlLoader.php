@@ -45,7 +45,8 @@ class PostgreSqlLoader implements LoaderInterface {
     return $this->promiseAdapter->all($retVal);
   }
 
-  public function loadByParent(string $entityClass, string $parentField, array $parentKeys): Promise {
+  /** @param $filters ?callable(\Doctrine\ORM\QueryBuilder): void */
+  public function loadByParent(string $entityClass, string $parentField, array $parentKeys, ?callable $filters = null): Promise {
     $classMetadata = $this->entityManager->getClassMetadata($entityClass);
     /** @var ManyToOneAssociationMapping $fieldMapping */
     $fieldMapping = $classMetadata->getAssociationMapping($parentField);
@@ -59,6 +60,10 @@ class PostgreSqlLoader implements LoaderInterface {
       ->from($entityClass, 'x')
       ->where($builder->expr()->in(\sprintf('x.%s', $parentField), ':objectIds'))
       ->setParameter('objectIds', $parentKeys, ArrayParameterType::INTEGER);
+
+    if ($filters !== null) {
+      $filters($builder);
+    }
 
     $query = $builder->getQuery();
     $elements = $this->runQuery($query);
@@ -79,7 +84,8 @@ class PostgreSqlLoader implements LoaderInterface {
     return $this->promiseAdapter->all($retVal);
   }
 
-  public function loadByJoinTable(string $owningClass, string $field, array $objectIds): Promise {
+  /** @param $filters ?callable(\Doctrine\ORM\QueryBuilder): void */
+  public function loadByJoinTable(string $owningClass, string $field, array $objectIds, ?callable $filters = null): Promise {
     $metadata = $this->entityManager->getClassMetadata($owningClass);
     /** @var ManyToManyOwningSideMapping|ManyToManyInverseSideMapping $fieldMapping */
     $fieldMapping = $metadata->getAssociationMapping($field);
@@ -126,6 +132,10 @@ class PostgreSqlLoader implements LoaderInterface {
       ->from($targetEntity, 'x')
       ->where($builder->expr()->in(\sprintf('x.%s', $targetReferencedColumnName), ':targetIds'))
       ->setParameter('targetIds', $targetSelection, ArrayParameterType::INTEGER);
+
+    if ($filters !== null) {
+      $filters($builder);
+    }
 
     $query = $builder->getQuery();
     $results = $this->runQuery($query);
