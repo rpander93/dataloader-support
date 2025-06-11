@@ -61,7 +61,7 @@ class PostgreSqlLoader implements LoaderInterface {
       ->where($builder->expr()->in(\sprintf('x.%s', $parentField), ':objectIds'))
       ->setParameter('objectIds', $parentKeys, ArrayParameterType::INTEGER);
 
-    if ($filters !== null) {
+    if (null !== $filters) {
       $filters($builder);
     }
 
@@ -133,7 +133,7 @@ class PostgreSqlLoader implements LoaderInterface {
       ->where($builder->expr()->in(\sprintf('x.%s', $targetReferencedColumnName), ':targetIds'))
       ->setParameter('targetIds', $targetSelection, ArrayParameterType::INTEGER);
 
-    if ($filters !== null) {
+    if (null !== $filters) {
       $filters($builder);
     }
 
