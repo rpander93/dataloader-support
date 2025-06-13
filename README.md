@@ -15,6 +15,33 @@ The example given [in the documentation of dataloader-bundle](https://github.com
 
 This package takes care of both these issues for you.
 
+## Prerequisites
+
+Currently this package only supports a loader implementation for PostgreSQL where it relies on the `IDX` function. This function needs to be registered with Doctrine:
+
+```yaml
+doctrine:
+    orm:
+        entity_managers:
+            default:
+                dql:
+                    string_functions:
+                        idx: Pander\DataLoaderSupport\Doctrine\IdxFunction
+```
+
+Then you can register the service as follows:
+
+```yaml
+services:
+  Pander\DataLoaderSupport\LoaderInterface:
+    class: Pander\DataLoaderSupport\PostgreSqlLoader
+    bind:
+      $entityManager: '@Doctrine\ORM\EntityManagerInterface'
+      $promiseAdapter: '@overblog_graphql.promise_adapter'
+      $hydrationMode: "array"
+```
+
+
 ## Basic example
 
 A typical example would have a data loader that loads `User` entities from the database.
