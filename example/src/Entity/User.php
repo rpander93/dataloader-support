@@ -33,7 +33,8 @@ class User {
 
   #[ORM\ManyToMany(targetEntity: UserGroup::class, inversedBy: 'members')]
   #[ORM\JoinTable(name: 'user_group_members')]
-  #[GQL\Field(name: 'groups', type: '[UserGroup!]!', resolve: "service('user_user_groups_loader').load(value.getId())")]
+  #[GQL\Field(name: 'groups', type: '[UserGroup!]!', resolve: 'query("App\\\GraphQL\\\Resolver\\\UserUserGroupResolver", value, args)')]
+  #[GQL\Arg(name: 'isActive', type: 'Boolean')]
   private Collection $groups;
 
   public function __construct(string $name, string $email, bool $isActive = true) {

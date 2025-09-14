@@ -27,14 +27,19 @@ class UserGroup {
   #[GQL\Field(name: 'description', type: 'String')]
   private ?string $description = null;
 
+  #[ORM\Column()]
+  #[GQL\Field(name: 'isActive', type: 'Boolean!')]
+  private bool $isActive = true;
+
   #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'groups')]
   #[GQL\Field(name: 'members', type: '[User!]!', resolve: "service('user_group_users_loader').load(value.getId())")]
   private Collection $members;
 
-  public function __construct(string $name, ?string $description = null) {
+  public function __construct(string $name, ?string $description = null, bool $isActive = true) {
     $this->name = $name;
     $this->description = $description;
     $this->members = new ArrayCollection();
+    $this->isActive = $isActive;
   }
 
   public function getId(): int {
@@ -55,6 +60,14 @@ class UserGroup {
 
   public function setDescription(?string $description): void {
     $this->description = $description;
+  }
+
+  public function getIsActive(): bool {
+    return $this->isActive;
+  }
+
+  public function setIsActive(bool $isActive): void {
+    $this->isActive = $isActive;
   }
 
   /** @return Collection<int, User> */

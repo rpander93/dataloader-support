@@ -18,10 +18,10 @@ class AppFixtures extends Fixture {
   /** @return UserGroup[] */
   private function createUserGroups(ObjectManager $manager): array {
     $groups = [
-      new UserGroup('Alpha', 'System administrators with full access'),
-      new UserGroup('Beta', 'Content moderators with limited administrative rights'),
-      new UserGroup('Charlie', 'Regular authenticated users'),
-      new UserGroup('Delta', 'Temporary visitors with minimal access'),
+      new UserGroup('Alpha', 'System administrators with full access', true),
+      new UserGroup('Beta', 'Content moderators with limited administrative rights', false),
+      new UserGroup('Charlie', 'Regular authenticated users', true),
+      new UserGroup('Delta', 'Temporary visitors with minimal access', false),
     ];
 
     foreach ($groups as $group) {

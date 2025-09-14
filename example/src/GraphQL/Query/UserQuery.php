@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Resolver;
+namespace App\GraphQL\Query;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Overblog\GraphQLBundle\Annotation as GQL;
 
 #[GQL\Provider()]
-class UserResolver {
+class UserQuery {
   public function __construct(private EntityManagerInterface $entityManager) {
     // ..
   }

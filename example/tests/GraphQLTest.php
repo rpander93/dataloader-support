@@ -17,11 +17,11 @@ class GraphQLTest extends WebTestCase {
 
   public function testQueriesUsers(): void {
     $queryString = <<<'GRAPHQL'
-      query ($userId: ID!) {
+      query ($userId: ID!, $isActive: Boolean) {
         users {
           id
           name
-          groups {
+          groups(isActive: $isActive) {
             id
             name
           }
@@ -54,12 +54,13 @@ class GraphQLTest extends WebTestCase {
       ->getQuery()
       ->getOneOrNullResult();
 
-    $client->request('POST', '/graphql/', [
+    $client->request('POST', '/graphql/', server: ['CONTENT_TYPE' => 'application/json'], content: json_encode([
       'query' => $queryString,
       'variables' => [
         'userId' => $user->getId(),
+        'isActive' => true,
       ],
-    ]);
+    ]));
 
     static::assertResponseIsSuccessful();
     $content = $client->getResponse()->getContent();
@@ -75,7 +76,8 @@ class GraphQLTest extends WebTestCase {
     foreach ($data['users'] as $user) {
       /** @var User */
       $entity = $entityManager->find(User::class, $user['id']);
-      static::assertCount($entity->getGroups()->count(), $user['groups']);
+      $groups = $entity->getGroups()->filter(fn (UserGroup $g) => $g->getIsActive());
+      static::assertCount($groups->count(), $user['groups']);
     }
 
     foreach ($data['user']['groups'] as $group) {

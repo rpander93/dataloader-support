@@ -17,7 +17,7 @@ This package takes care of both these issues for you.
 
 ## Prerequisites
 
-Currently this package only supports a loader implementation for PostgreSQL where it relies on the `IDX` function. This function needs to be registered with Doctrine:
+Currently this package only supports a loader implementation for PostgreSQL via Doctrine ORM where it relies on the `IDX` function. This function needs to be registered with Doctrine:
 
 ```yaml
 doctrine:

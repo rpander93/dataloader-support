@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+// Inspired from https://gist.github.com/vuon9/be16429f751e12f72e220c18777d9bc7
+//
+// This script will
+//   1. Read the file contents provided by STDIN
+//   2. Create a temporary file (tries multiple directories)
+//   3. Call PHP-CS-Fixer's "fix" command with path to the temp file
+//   4. provides the fixed file contents as STDOUT
+
+function error_exit(string $message, int $code = 1): void {
+  fwrite(STDERR, $message.PHP_EOL);
+  exit($code);
+}
+
+// Read file contents from STDIN
+
+$fileContents = file_get_contents('php://stdin');
+$fileContents = trim($fileContents);
+
+// Create temp file and save STDIN contents
+
+$tryTmpDirs = [sys_get_temp_dir(), '.tmp'];
+
+$createdTempFile = false;
+
+foreach ($tryTmpDirs as $tmpDir) {
+  $ok = is_dir($tmpDir) || mkdir($tmpDir, 0777, true);
+  if (false === $ok) {
+    continue;
+  }
+
+  $tmpFile = tempnam($tmpDir, 'fix_');
+  if (false === $tmpFile) {
+    continue;
+  }
+
+  $ok = file_put_contents($tmpFile, $fileContents);
+  if (false === $ok) {
+    continue;
+  }
+
+  $createdTempFile = true;
+}
+
+if (!$createdTempFile) {
+  error_exit('could not save STDIN to temp file');
+}
+
+// Check if PHP-CS-Fixer is installed
+$cmd = \sprintf(
+  'PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer --quiet fix %s',
+  $tmpFile,
+);
+
+// Run the command
+
+$output = [];
+$returnCode = 0;
+
+exec($cmd, $output, $returnCode);
+
+if ($returnCode > 0) {
+  error_exit(implode(' ', $output), $returnCode);
+}
+
+// Return new contents to STDOUT
+
+$newContents = file_get_contents($tmpFile);
+
+if (false === $newContents) {
+  error_exit('couldnt read from temp file after fixing');
+}
+
+if (!empty($newContents)) {
+  fwrite(STDOUT, trim($newContents).PHP_EOL);
+}
+
+if (false === @unlink($tmpFile)) {
+  error_exit('couldnt delete temp file');
+}

@@ -27,3 +27,14 @@ services:
         class: Pander\DataLoaderSupport\PostgreSqlLoader
         arguments:
             $promiseAdapter: "@overblog_graphql.promise_adapter"
+
+    Pander\DataLoaderSupport\Dynamic\DataLoaderFactory:
+        class: Pander\DataLoaderSupport\Dynamic\DataLoaderFactory
+        arguments:
+            - '@Pander\DataLoaderSupport\LoaderInterface'
+            - '@overblog_dataloader.webonyx_graphql_sync_promise_adapter'
+
+    Pander\DataLoaderSupport\Dynamic\MemoizedDataLoaderFactory:
+        class: Pander\DataLoaderSupport\Dynamic\MemoizedDataLoaderFactory
+        arguments:
+            - '@Pander\DataLoaderSupport\Dynamic\DataLoaderFactory'
