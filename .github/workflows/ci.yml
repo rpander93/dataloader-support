@@ -41,7 +41,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
-      - name: "Install PHP"
+      - name: "Install PHP and Composer"
         uses: https://github.com/shivammathur/setup-php@v2
         with:
           tools: flex
@@ -49,16 +49,21 @@ jobs:
           coverage: none
 
       - name: "Install dependencies"
-        uses: https://github.com/ramsey/composer-install@v3
-        with:
-         dependency-versions: ${{ matrix.dependencies }}
+        run: |
+          if [ "${{ matrix.dependencies }}" = "lowest" ]; then
+            composer update --no-interaction --prefer-stable --prefer-lowest
+          else
+            composer install --no-interaction
+          fi
 
       - name: "Run tests"
+        env:
+          DATABASE_URL: "pdo-pgsql://user:password@database:5432/database?serverVersion=17.5.1"
         run: composer test
 
       - name: "Run example"
         env:
-          DATABASE_URL: "pdo-pgsql://user:password@localhost:5432/database?serverVersion=17.5.1"
+          DATABASE_URL: "pdo-pgsql://user:password@database:5432/database?serverVersion=17.5.1"
         run: |
           cd example; composer install; composer test
 
@@ -74,8 +79,13 @@ jobs:
           tools: flex
           php-version: "8.2"
 
+      - name: "Install Composer"
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+          composer --version
+
       - name: "Install dependencies"
-        uses: https://github.com/ramsey/composer-install@v3
+        run: composer install --no-interaction
 
       - name: "Check coding standard"
         run: composer check-cs

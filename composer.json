@@ -4,6 +4,7 @@
     "type": "library",
     "require": {
         "doctrine/orm": "^3.0",
+        "symfony/var-exporter": "^7.4",
         "webonyx/graphql-php": "*"
     },
     "license": "MIT",
@@ -32,7 +33,7 @@
     "authors": [
         {
             "name": "Remco Pander",
-            "email": "rpander93@gmail.com"
+            "email": "remco@pander.io"
         }
     ],
     "require-dev": {
