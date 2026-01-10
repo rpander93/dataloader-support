@@ -39,17 +39,17 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: actions/checkout@v2
 
       - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           tools: flex
           php-version: "${{ matrix.php-version }}"
           coverage: none
 
       - name: "Install dependencies"
-        uses: ramsey/composer-install@v3
+        uses: https://github.com/ramsey/composer-install@v3
         with:
          dependency-versions: ${{ matrix.dependencies }}
 
@@ -66,16 +66,16 @@ jobs:
     runs-on: codeberg-tiny
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: actions/checkout@v2
 
       - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           tools: flex
           php-version: "8.2"
 
       - name: "Install dependencies"
-        uses: ramsey/composer-install@v3
+        uses: https://github.com/ramsey/composer-install@v3
 
       - name: "Check coding standard"
         run: composer check-cs
