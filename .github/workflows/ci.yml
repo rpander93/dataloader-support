@@ -11,7 +11,7 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: codeberg-small
     services:
       database:
         image: postgres:17.5
@@ -63,7 +63,7 @@ jobs:
           cd example; composer install; composer test
 
   coding-standard:
-    runs-on: ubuntu-latest
+    runs-on: codeberg-tiny
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v2"
