@@ -42,10 +42,14 @@ class DataLoaderFactory implements DataLoaderFactoryInterface {
   private function createConstraints(array $parameters): callable {
     return function (QueryBuilder $builder) use ($parameters) {
       foreach ($parameters as $field => $value) {
-        $placeholder = \sprintf(':%s_placeholder', $field);
+        if (null === $value) {
+          $builder->andWhere($builder->expr()->isNull(\sprintf('x.%s', $field)));
+        } else {
+          $placeholder = \sprintf(':%s_placeholder', $field);
 
-        $builder->andWhere($builder->expr()->eq(\sprintf('x.%s', $field), $placeholder));
-        $builder->setParameter($placeholder, $value);
+          $builder->andWhere($builder->expr()->eq(\sprintf('x.%s', $field), $placeholder));
+          $builder->setParameter($placeholder, $value);
+        }
       }
     };
   }
